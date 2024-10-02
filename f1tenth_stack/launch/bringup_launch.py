@@ -88,7 +88,8 @@ def generate_launch_description():
         package='vesc_ackermann',
         executable='ackermann_to_vesc_node',
         name='ackermann_to_vesc_node',
-        parameters=[LaunchConfiguration('vesc_config')]
+        parameters=[LaunchConfiguration('vesc_config')],
+        remappings=[('ackermann_cmd', 'drive')]
     )
     vesc_to_odom_node = Node(
         package='vesc_ackermann',
@@ -126,13 +127,19 @@ def generate_launch_description():
         executable='ackermann_mux',
         name='ackermann_mux',
         parameters=[LaunchConfiguration('mux_config')],
-        remappings=[('ackermann_cmd_out', 'ackermann_drive')]
+        remappings=[('ackermann_cmd', 'drive')]
     )
     static_tf_node = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
         name='static_baselink_to_laser',
         arguments=['0.27', '0.0', '0.11', '0.0', '0.0', '0.0', 'base_link', 'laser']
+    )
+    safety_node = Node(
+        package='safety_node',
+        executable='safety_node',
+        name='safety_node',
+        remappings=[('ego_racecar/odom', 'odom')]
     )
 
     # finalize
@@ -146,5 +153,6 @@ def generate_launch_description():
     # ld.add_action(urg_node)
     ld.add_action(ackermann_mux_node)
     ld.add_action(static_tf_node)
+    ld.add_action(safety_node)
 
     return ld
